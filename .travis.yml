@@ -1,4 +1,9 @@
 language: cpp
+os:
+  - linux
+  - osx
+install:
+  - sudo pip install --upgrade b2
 before_script:
   - git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
   - export PATH=`pwd`/depot_tools:"$PATH"
@@ -10,5 +15,20 @@ before_script:
 script:
   - sed -i 's/static_library("pdfium")/shared_library("pdfium")/' BUILD.gn
   - cp $TRAVIS_BUILD_DIR/args.gn .
-  - gn gen .
+  - gn gen . || true
   - ninja pdfium
+after_sucess:
+  - PDFIUM_REF=$(git rev-parse  HEAD)
+  - SYSTEM="$(uname -s)-$(uname -m)"
+  - SYSTEM="${SYSTEM,,}" # lower case 
+  - FILENAME="$PDFIUM_REF/$SYSTEM/libpdfium.so"
+  - cd $TRAVIS_BUILD_DIR/repo/pdfium/
+  - b2 authorize-account $B2_ACCOUNT_ID $B2_APP_KEY
+  - b2 upload-file --noProgress $B2_BUCKET libpdfium.so $FILENAME
+  # Update index file
+  - b2 download-file-by-name --noProgress $B2_BUCKET index b2-index
+  - echo -e "$(date --utc --iso-8601=minutes)\t$PDFIUM_REF\t$SYSTEM\t$FILENAME" >> b2-index
+  - b2 upload-file --noProgress $B2_BUCKET b2-index index
+env:
+  global:
+    - secure: "JO76pThpdDqUGV7S/A6jJhj6vq8tgRXHqctF8uaLgpjT9NzBHamroG/xHB+9NZRkJWpVft+7ZkAgLJfwpQsdd6RwM938FHjKr7K4Ift4btWI4N+Pkn/3Or3OKJPw0c4llwvPSUP/pwR3SNpZeh0q8qGosZ+6tGQMtHERor0dnsR+i5uKraf7ASmjlczOYfh9+X2KxrACj6+NxpthxC8WrkZBu9mlTmt1DaBBMfBldPyKI/rdQM6Rz5icq0YfY+iuQRKPhpON4KQKjz+M3bFPrwQb3PVnIVZfJcE3A0tZN5p4lRRpZCkPkaH47cw1ImIPaVTMrSVQOdjYjP5QnOIEC8OrPiGNxTtKTuO17Jcp2TwZoJrnJQU4fXZ8NjS9VJmxpCumIEqkOn/n/sWqU+csnGWLABCSpVNeglDan/YMYiNmLbznQ1oOfSlr98fY8CMC9W7BO5Iy8+jRTcliWTDMQmIVqbZjNwCyK9BmNrAKjjnzAva9T6sdFNapMGIm9uB44nwk0dpRdxqKxOH8sXrMpK2e/+x3VxmD6HQrxoIn3JWGHnPkSVsYPzJ9jIzYfObFzKrJqG3h2RV1Pl94+4RlmlPXw5gstgqOeV6Pd2kmV/GcEVfsAv+gdEtruSDxHARMDd6rYOPC9DBdt0Is3u2HiczqRh4JItH+/lVFjdCej2U="
