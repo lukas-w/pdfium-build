@@ -1,0 +1,22 @@
+platform:
+  - x86
+  - x64
+version: '{build}'
+install:
+  - ps: $env:DEPOT_TOOLS_WIN_TOOLCHAIN=0
+  - ps: git config --global credential.modalPrompt false
+  - ps: (New-Object System.Net.WebClient).DownloadFile("https://storage.googleapis.com/chrome-infra/depot_tools.zip", (Resolve-Path .\).Path + "\depot_tools.zip")
+  - ps: Expand-Archive depot_tools.zip -DestinationPath depot_tools
+  - ps: $env:PATH = (Resolve-Path .\).Path + "\depot_tools;" + "$env:PATH"
+before_build:
+  - ps: mkdir repo
+  - ps: cd repo
+  - ps: gclient config --unmanaged https://pdfium.googlesource.com/pdfium.git
+  - ps: gclient sync
+build_script:
+  - ps: cd pdfium
+  - ps: (Get-Content BUILD.gn).replace('static_library("pdfium")', 'shared_library("pdfium")') | Set-Content BUILD.gn
+  - ps: cp $env:APPVEYOR_BUILD_FOLDER/args.gn .
+  - ps: echo ('target_cpu = "' + $env:PLATFORM + '"') >> args.gn
+  - ps: gn gen .
+  - ps: ninja pdfium
