@@ -17,7 +17,7 @@ script:
   - cp $TRAVIS_BUILD_DIR/args.gn .
   - gn gen . || true
   - ninja pdfium
-after_sucess:
+after_success:
   - PDFIUM_REF=$(git rev-parse  HEAD)
   - SYSTEM="$(uname -s)-$(uname -m)"
   - SYSTEM="${SYSTEM,,}" # lower case 
