@@ -25,7 +25,7 @@ build_script:
   - ps: (Get-Content BUILD.gn).replace('static_library("pdfium")', 'shared_library("pdfium")') | Set-Content BUILD.gn
   - ps: cp $env:APPVEYOR_BUILD_FOLDER/args.gn .
   - ps: Add-Content -Path args.gn -Value ('target_cpu = "' + $env:PLATFORM + '"')
-  - ps: gn gen .
+  - cmd: gn gen . | exit 0
   - ps: ninja pdfium
 deploy_script:
   - ps: $PDFIUM_REF=(git rev-parse HEAD)
