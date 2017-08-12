@@ -21,13 +21,16 @@ after_success:
   - PDFIUM_REF=$(git rev-parse  HEAD)
   - SYSTEM="$(uname -s)-$(uname -m)"
   - SYSTEM="${SYSTEM,,}" # lower case 
-  - FILENAME="$PDFIUM_REF/$SYSTEM/libpdfium.so"
+  - LIB_EXT=so
+  - DATE=$(date -u +"%FT%H:%M%:z")
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then LIB_EXT=dylib; fi
+  - FILENAME="$PDFIUM_REF/$SYSTEM/libpdfium.$LIB_EXT"
   - cd $TRAVIS_BUILD_DIR/repo/pdfium/
   - b2 authorize-account $B2_ACCOUNT_ID $B2_APP_KEY
   - b2 upload-file --noProgress $B2_BUCKET libpdfium.so $FILENAME
   # Update index file
   - b2 download-file-by-name --noProgress $B2_BUCKET index b2-index
-  - echo -e "$(date --utc --iso-8601=minutes)\t$PDFIUM_REF\t$SYSTEM\t$FILENAME" >> b2-index
+  - echo -e "$DATE\t$PDFIUM_REF\t$SYSTEM\t$FILENAME" >> b2-index
   - b2 upload-file --noProgress $B2_BUCKET b2-index index
 env:
   global:
