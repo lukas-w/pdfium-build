@@ -13,7 +13,7 @@ before_script:
   - gclient sync
   - cd pdfium
 script:
-  - sed -i 's/static_library("pdfium")/shared_library("pdfium")/' BUILD.gn
+  - sed -i.bak 's/static_library("pdfium")/shared_library("pdfium")/' BUILD.gn
   - cp $TRAVIS_BUILD_DIR/args.gn .
   - gn gen . || true
   - ninja pdfium
