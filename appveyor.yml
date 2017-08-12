@@ -1,8 +1,15 @@
 platform:
   - x86
   - x64
+environment:
+  B2_ACCOUNT_ID:
+    secure: 0DWMVxE9JyJ/LN0I2leF2w==
+  B2_APP_KEY:
+    secure: celfn3mwvMWOIojiPhwb2VOUtZfx/ERdIMaDnm7S0MrXvfYE6AJgrNqVaGTPZlvc
+  B2_BUCKET: pdfium-binaries
 version: '{build}'
 install:
+  - ps: pip install --upgrade b2
   - ps: $env:DEPOT_TOOLS_WIN_TOOLCHAIN=0
   - ps: git config --global credential.modalPrompt false
   - ps: (New-Object System.Net.WebClient).DownloadFile("https://storage.googleapis.com/chrome-infra/depot_tools.zip", (Resolve-Path .\).Path + "\depot_tools.zip")
@@ -20,3 +27,9 @@ build_script:
   - ps: Add-Content -Path args.gn -Value ('target_cpu = "' + $env:PLATFORM + '"')
   - ps: gn gen .
   - ps: ninja pdfium
+deploy_script:
+  - ps: $PDFIUM_REF=(git rev-parse HEAD)
+  - ps: $SYSTEM="Windows-$env:PLATFORM"
+  - ps: $FILENAME="$PDFIUM_REF/$SYSTEM/pdfium.dll"
+  - ps: b2 authorize-account $env:B2_ACCOUNT_ID $env:B2_APP_KEY
+  - ps: b2 upload-file --noProgress $env:B2_BUCKET pdfium.dll $FILENAME
