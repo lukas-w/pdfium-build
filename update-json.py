@@ -44,15 +44,24 @@ for file in files:
 		'download_url': bucket.get_download_url(file_name)
 	})
 
+build_list = []
+
 for sha in file_dictionary:
 	commit = repo.get_commit(sha).commit
-	file_dictionary[sha]['author_date'] = commit.author.date.isoformat();
-	file_dictionary[sha]['committer_date'] = commit.committer.date.isoformat();
+	build_list.append({
+		'sha': sha,
+		'author_date': commit.author.date.isoformat(),
+		'committer_date': commit.committer.date.isoformat(),
+		'files': file_dictionary[sha]['files']
+	})
 
-json_string = json.dumps(file_dictionary, indent=4)
+build_list.sort(key = lambda build: build['author_date'], reverse=True)
 
-u = json_string.encode('utf-8')
-bucket.upload_bytes(u, 'index.json', 'application/json')
+json_string = json.dumps(build_list, indent=4)
 
-print("Uploaded index.json", file=sys.stderr)
+if 'TRAVIS' in os.environ:
+	u = json_string.encode('utf-8')
+	bucket.upload_bytes(u, 'index.json', 'application/json')
+	print("Uploaded index.json", file=sys.stderr)
+
 print(json_string)
