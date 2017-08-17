@@ -9,7 +9,7 @@ environment:
   B2_BUCKET: pdfium-binaries
 version: '{build}'
 install:
-  - ps: pip install --upgrade b2
+  - ps: pip install --user --upgrade b2 tatsu
   - ps: $env:DEPOT_TOOLS_WIN_TOOLCHAIN=0
   - ps: git config --global credential.modalPrompt false
   - ps: (New-Object System.Net.WebClient).DownloadFile("https://storage.googleapis.com/chrome-infra/depot_tools.zip", (Resolve-Path .\).Path + "\depot_tools.zip")
@@ -23,7 +23,8 @@ before_build:
 build_script:
   - ps: cd pdfium
   - ps: (Get-Content BUILD.gn).replace('static_library("pdfium")', 'shared_library("pdfium")') | Set-Content BUILD.gn
-  - ps: cp $env:APPVEYOR_BUILD_FOLDER/args.gn .
+  - ps: python $env:APPVEYOR_BUILD_FOLDER/patch-build-file.py
+  - ps: cp $env:APPVEYOR_BUILD_FOLDER/args.gn.win ./args.gn
   - ps: Add-Content -Path args.gn -Value ('target_cpu = "' + $env:PLATFORM + '"')
   - cmd: gn gen . | exit 0
   - ps: ninja pdfium
