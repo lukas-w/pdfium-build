@@ -21,7 +21,8 @@ script:
   - gn gen . || true
   - ninja pdfium
   # Build shared library from static libpdfium.a
-  - gcc -shared -o libpdfium.so -Wl,--whole-archive obj/libpdfium.a -Wl,--no-whole-archive
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then g++ -shared -o libpdfium.so -Wl,--whole-archive obj/libpdfium.a -Wl,--no-whole-archive; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then g++ -shared -o libpdfium.so  -framework CoreFoundation -framework CoreGraphics -Wl,-force_load obj/libpdfium.a; fi
 after_success:
   - PDFIUM_REF=$(git rev-parse  HEAD)
   - SYSTEM="$(uname -s)-$(uname -m)"

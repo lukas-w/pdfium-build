@@ -9,7 +9,8 @@ environment:
   B2_BUCKET: pdfium-binaries
 version: '{build}'
 install:
-  - ps: pip install --user --upgrade b2 tatsu
+  - ps: pip install --upgrade b2
+  - ps: pip install --user --upgrade tatsu
   - ps: $env:DEPOT_TOOLS_WIN_TOOLCHAIN=0
   - ps: git config --global credential.modalPrompt false
   - ps: (New-Object System.Net.WebClient).DownloadFile("https://storage.googleapis.com/chrome-infra/depot_tools.zip", (Resolve-Path .\).Path + "\depot_tools.zip")
