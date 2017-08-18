@@ -19,7 +19,7 @@ script:
   - sed -i.bak 's/^static_library("pdfium")/component("pdfium")/' BUILD.gn
   # Fix symbol visibility – files are built with -fvisiblity=hidden
   - sed -i.bak 's/^#define FPDF_EXPORT$/#define FPDF_EXPORT  __attribute__((visibility("default")))/' public/fpdfview.h
-  - cp $TRAVIS_BUILD_DIR/args.gn .
+  - cp $TRAVIS_BUILD_DIR/args.gn.$TRAVIS_OS_NAME ./args.gn
   - gn gen . || true
   - ninja pdfium
 after_success:
