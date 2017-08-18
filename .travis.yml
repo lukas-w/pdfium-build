@@ -14,15 +14,13 @@ before_script:
   - gclient sync
   - cd pdfium
 script:
-  # shared_library appears to be broken on macOS/Linux, the resulting library is empty
-  # - sed -i.bak 's/static_library("pdfium")/shared_library("pdfium")/' BUILD.gn
-  - python $TRAVIS_BUILD_DIR/patch-build-file.py
+  # Change pdfium library from static to shared
+  - sed -i.bak 's/^static_library("pdfium")/component("pdfium")/' BUILD.gn
+  # Fix symbol visibility – files are built with -fvisiblity=hidden
+  - sed -i.bak 's/^#define FPDF_EXPORT$/#define FPDF_EXPORT  __attribute__((visibility("default")))\n/' public/fpdfview.h
   - cp $TRAVIS_BUILD_DIR/args.gn .
   - gn gen . || true
   - ninja pdfium
-  # Build shared library from static libpdfium.a
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then g++ -shared -o libpdfium.so -Wl,--whole-archive obj/libpdfium.a -Wl,--no-whole-archive; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then g++ -shared -o libpdfium.so  -framework CoreFoundation -framework CoreGraphics -Wl,-force_load obj/libpdfium.a; fi
 after_success:
   - PDFIUM_REF=$(git rev-parse  HEAD)
   - SYSTEM="$(uname -s)-$(uname -m)"
