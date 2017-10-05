@@ -5,7 +5,7 @@ matrix:
     - os: osx
       osx_image: xcode8.1
 install:
-  - pip install --upgrade b2 tatsu
+  - sudo pip install --upgrade b2 tatsu
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update;
       sudo apt-get install g++-4.8;
