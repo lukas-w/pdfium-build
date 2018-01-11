@@ -25,7 +25,7 @@ before_build:
   - ps: gclient sync
 build_script:
   - ps: cd pdfium
-  - ps: (Get-Content BUILD.gn).replace('static_library("pdfium")', 'shared_library("pdfium")') | Set-Content BUILD.gn
+  - ps: (Get-Content BUILD.gn).replace('jumbo_static_library("pdfium")', 'shared_library("pdfium")') | Set-Content BUILD.gn
   - ps: python $env:APPVEYOR_BUILD_FOLDER/patch-build-file.py
   - ps: cp $env:APPVEYOR_BUILD_FOLDER/args.gn.win ./args.gn
   - ps: Add-Content -Path args.gn -Value ('target_cpu = "' + $env:PLATFORM + '"')
