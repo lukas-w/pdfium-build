@@ -2,10 +2,12 @@ language: cpp
 matrix:
   include:
     - os: linux
+      env: PIP=pip
     - os: osx
       osx_image: xcode8.3
+      env: PIP=pip2
 install:
-  - sudo pip install --upgrade b2 tatsu
+  - sudo $PIP install --upgrade b2 tatsu
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update;
       sudo apt-get install g++-4.8;
