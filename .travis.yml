@@ -3,7 +3,7 @@ matrix:
   include:
     - os: linux
     - os: osx
-      osx_image: xcode8.1
+      osx_image: xcode8.3
 install:
   - sudo pip install --upgrade b2 tatsu
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
