@@ -26,7 +26,7 @@ before_script:
   - cd pdfium
 script:
   # Change pdfium library from static to shared
-  - sed -i.bak 's/^static_library("pdfium")/component("pdfium")/' BUILD.gn
+  - sed -i.bak 's/^jumbo_static_library("pdfium")/jumbo_component("pdfium")/' BUILD.gn
   # Fix symbol visibility – files are built with -fvisiblity=hidden
   - sed -i.bak 's/^#define FPDF_EXPORT$/#define FPDF_EXPORT  __attribute__((visibility("default")))/' public/fpdfview.h
   - cp $TRAVIS_BUILD_DIR/args.gn.$TRAVIS_OS_NAME ./args.gn
