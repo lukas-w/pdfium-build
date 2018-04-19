@@ -11,6 +11,8 @@ environment:
   B2_BUCKET: pdfium-binaries
 version: '{build}'
 install:
+  - ps: $env:PIP_NO_WARN_SCRIPT_LOCATION=0
+  - ps: python -m pip install --upgrade pip
   - ps: pip install --upgrade b2
   - ps: pip install --user --upgrade tatsu
   - ps: $env:DEPOT_TOOLS_WIN_TOOLCHAIN=0
